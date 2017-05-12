@@ -12,12 +12,6 @@ apt-get update
 # Apache
 apt-get install -y apache2
 
-if ! [ -L /var/www ]; then
-  rm -rf /var/www
-  ln -fs /vagrant /var/www
-  ln -fs /vagrant/web /var/www/html
-fi
-
 # PHP
 apt-get install -y php5.6-cli php5.6 php5.6-mysql php5.6-mbstring php5.6-curl php5.6-common php5.6-xml php5.6-pdo php5.6-dom php5.6-intl
 
