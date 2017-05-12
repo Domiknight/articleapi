@@ -15,6 +15,11 @@ fi
 
 # Apache
 if ! [ -f /etc/apache2/sites-enabled/000-default.conf.orig ]; then
+    # Update the default security model to point to /vagrant share
+    cp /etc/apache2/apache2.conf /etc/apache2/apache.conf.orig
+    sed -e 's/Directory \/var\/www/Directory \/vagrant/' < /etc/apache2/apache2.conf > /etc/apache2/apache2.conf.new
+    mv /etc/apache2/apache2.conf.new /etc/apache2/apache2.conf
+
     # Point the Document Root to the right place
     cp /etc/apache2/sites-enabled/000-default.conf /etc/apache2/sites-enabled/000-default.conf.orig
     sed -e 's/DocumentRoot \/var\/www\/html/DocumentRoot \/vagrant\/web/' < /etc/apache2/sites-enabled/000-default.conf > /etc/apache2/sites-enabled/000-default.conf.new
