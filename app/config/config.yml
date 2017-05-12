@@ -68,3 +68,20 @@ swiftmailer:
     username: '%mailer_user%'
     password: '%mailer_password%'
     spool: { type: memory }
+
+fos_rest:
+    body_listener: true
+    param_fetcher_listener: true
+    format_listener:
+        enabled: true
+        rules:
+          - { path: ^/api, fallback_format: json }
+          - { path: ^/, fallback_format: html }
+    # Enable serializer for the REST API
+    serializer:
+        serialize_null: true
+    view:
+        view_response_listener: force
+
+    # Disable CSRF protection
+    disable_csrf_role: ROLE_API
