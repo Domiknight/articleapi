@@ -18,9 +18,21 @@ From the host
 <code>vagrant ssh -c '/vagrant/scripts/runUnitTests.sh'</code>
 </pre>
 
+## API Docs
+View at [localhost:8080/api/doc](http://localhost:8080/api/doc) or view API.md.
+
+To rebuild the API.md file from host, simply run
+<pre>
+<code>vagrant ssh -c '/vagrant/scripts/buildAPIDocs.sh'</code>
+</pre>
+
 ## Crontab
 The server's crontab is setup to take what ever is in the file located at
 <pre>./scripts/crontab</pre>
+
+# Un-answered Questions
+### To /api or not to /api
+I took the approach to utilise /api and leave / as a HTML view with the intention to expose the Readme.md
 
 # Reflections
 ### Deployable Environment

@@ -85,3 +85,6 @@ fos_rest:
 
     # Disable CSRF protection
     disable_csrf_role: ROLE_API
+
+# app/config/config.yml
+nelmio_api_doc: ~
