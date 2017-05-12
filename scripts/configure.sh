@@ -31,3 +31,7 @@ fi
 a2enmod rewrite
 service apache2 restart
 
+# MySQL Backups
+mkdir -p /opt/backups/database
+crontab /vagrant/scripts/crontab
+
