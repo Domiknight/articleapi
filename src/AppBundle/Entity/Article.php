@@ -3,6 +3,8 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Article
@@ -10,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="article")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleRepository")
  * @ORM\HasLifecycleCallbacks()
+ * @UniqueEntity("url")
  */
 class Article
 {
@@ -226,9 +229,6 @@ class Article
     {
         $this->createdAt = new \DateTime();
         $this->updatedAt = $this->createdAt;
-
-        // simplistic sluggable regex
-        $this->url = preg_replace('/[^a-z0-9\-]+/i', '-', $this->title);
     }
 
     /**

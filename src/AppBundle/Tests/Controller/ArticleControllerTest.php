@@ -3,15 +3,45 @@
 namespace AppBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ArticleControllerTest extends WebTestCase
 {
     public function testCreate()
     {
 
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $client = static::createClient();
+
+        $client->request(Request::METHOD_POST, '/api/authors', ['name' => 'me']);
+        $author = json_decode($client->getResponse()->getContent(), true);
+
+        $articleData = [
+            'title' => 'title',
+            'url' => 'url '.microtime(true),
+            'author' => $author['id'],
+            'content' => 'asdf asdf adsf asdfa sdfasdfasdfasdfasdfasdfds',
+        ];
+
+        $client->request(Request::METHOD_POST, '/api/articles', $articleData);
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+        print_r($data);
+        $this->assertJson(json_encode($articleData), 'JSON match');
+        $this->assertArrayHasKey('id', $data, 'id key exists');
+        $this->assertArrayHasKey('created_at', $data, 'has createdAt field');
+        $this->assertArrayHasKey('updated_at', $data, 'has updatedAt field');
+        $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode(), 'yay success');
+        $this->assertTrue(
+            $client->getResponse()->headers->contains(
+                'Content-Type',
+                'application/json'
+            ),
+            'the "Content-Type" header is "application/json"'
         );
+
+        $this->assertTrue($client->getResponse()->headers->has('Location'), 'Location header set');
+        $this->assertContains('api/articles/'.$data['id'], $client->getResponse()->headers->__toString(), 'the "Location" header matches the articles GET route');
     }
 
     /**

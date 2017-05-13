@@ -5,22 +5,32 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleType;
 use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\Routing\ClassResourceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
+use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Put;
+use FOS\RestBundle\Controller\Annotations\Delete;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use FOS\RestBundle\Controller\Annotations\RouteResource;
 
 /**
- * Article controller.
+ * Class ArticleController
  *
- * @Route("api/articles")
+ * @RouteResource("articles")
+ *
+ * @package AppBundle\Controller
  */
-class ArticleController extends FOSRestController
+class ArticleController extends FOSRestController implements ClassResourceInterface
 {
     /**
-     * @Get("/", name="api_articles_index")
+     * @Get("/api/articles")
      *
      * @ApiDoc(
      *   description = "Lists all article entities."
@@ -37,11 +47,14 @@ class ArticleController extends FOSRestController
     }
 
     /**
-     * @Post("/", name="api_articles_new")
+     * @Post("/api/articles")
      *
      * @ApiDoc(
-     *  description = Creates a new article entity.
+     *  description = "Creates a new article entity."
      * )
+     *
+     * @param Request $request
+     * @return \Symfony\Component\Form\Form|Response
      */
     public function newAction(Request $request)
     {
@@ -61,16 +74,16 @@ class ArticleController extends FOSRestController
         $view = $this->view($article);
         $view
             ->setStatusCode(Response::HTTP_CREATED)
-            ->setLocation($this->generateUrl('api_articles_show', ['articleId' => $article->getId()]))
+            ->setLocation($this->generateUrl('show_articles', ['articleId' => $article->getId()]))
         ;
         return $this->handleView($view);
     }
 
     /**
-     * @Get"/{id}", name="api_articles_show")
+     * @Get("/api/articles/{articleId}")
      *
      * @ApiDoc(
-     *     description = Gets the details for a specific article
+     *     description = "Gets the details for a specific article"
      * )
      */
     public function showAction($articleId)
@@ -86,9 +99,11 @@ class ArticleController extends FOSRestController
     }
 
     /**
-     * Displays a form to edit an existing article entity.
+     * @Put("/api/articles/{articleId}")
      *
-     * @Put("/{id}", name="api_articles_edit")
+     * @ApiDoc(
+     *     description = "Displays a form to edit an existing article entity."
+     * )
      */
     public function editAction(Request $request, Article $article)
     {
@@ -112,10 +127,11 @@ class ArticleController extends FOSRestController
     }
 
     /**
-     * Deletes a article entity.
+     * @Delete("/api/articles/{id}")
      *
-     * @Route("/{id}", name="api_articles_delete")
-     * @Method("DELETE")
+     * @ApiDoc(
+     *     description = "Deletes a article entity."
+     * )
      */
     public function deleteAction(Request $request, Article $article)
     {
