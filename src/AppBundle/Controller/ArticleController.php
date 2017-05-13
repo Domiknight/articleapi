@@ -105,25 +105,28 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
      *     description = "Displays a form to edit an existing article entity."
      * )
      */
-    public function editAction(Request $request, Article $article)
+    public function editAction(Request $request, $articleId)
     {
-        throw new ServiceUnavailableHttpException();
+        $article = $this->getDoctrine()->getRepository('AppBundle:Article')->find($articleId);
+        if (!$article)
+        {
+            throw new NotFoundHttpException();
+        }
 
-        $deleteForm = $this->createDeleteForm($article);
+//        $deleteForm = $this->createDeleteForm($article);
         $form = $this->createForm(ArticleType::class, $article);
-        $form->handleRequest($request);
+        $form->submit($request->request->all());
 
         if (!$form->isValid()) {
             return $form;
         }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('api_articles_edit', array('id' => $article->getId()));
-        }
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($article);
+        $em->flush();
 
-        return $this->handleView($this->view(), Response::HTTP_NO_CONTENT);
+        return $this->handleView($this->view(null, Response::HTTP_NO_CONTENT));
     }
 
     /**

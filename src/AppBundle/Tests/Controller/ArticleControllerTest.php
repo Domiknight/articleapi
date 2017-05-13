@@ -26,7 +26,6 @@ class ArticleControllerTest extends WebTestCase
         $client->request(Request::METHOD_POST, '/api/articles', $articleData);
 
         $data = json_decode($client->getResponse()->getContent(), true);
-        print_r($data);
         $this->assertJson(json_encode($articleData), 'JSON match');
         $this->assertArrayHasKey('id', $data, 'id key exists');
         $this->assertArrayHasKey('created_at', $data, 'has createdAt field');
@@ -49,10 +48,38 @@ class ArticleControllerTest extends WebTestCase
      */
     public function testUpdate()
     {
-        // should not be able to edit createdAt, updatedAt, author id
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $client = static::createClient();
+
+        $client->request(Request::METHOD_POST, '/api/authors', ['name' => 'me']);
+        $author = json_decode($client->getResponse()->getContent(), true);
+        $articleData = [
+            'title' => 'title',
+            'url' => 'url '.microtime(true),
+            'author' => $author['id'],
+            'content' => 'asdf asdf adsf asdfa sdfasdfasdfasdfasdfasdfds',
+        ];
+
+        $client->request(Request::METHOD_POST, '/api/articles', $articleData);
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals($data['updated_at'], $data['created_at'], 'update and create times are the same');
+
+        // reformat for update request
+        $updateData = $data;
+        $updateData['title'] = 'title updated';
+        $updateData['author']= $data['author']['id'];
+        unset($updateData['id']);
+        unset($updateData['created_at']);
+        unset($updateData['updated_at']);
+
+        $client->request(Request::METHOD_PUT, '/api/articles/'.$data['id'], $updateData);
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), 'yay success');
+
+        $client->request(Request::METHOD_GET, '/api/articles/'.$data['id']);
+        $updatedResponseData = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals('title updated', $updatedResponseData['title'], 'title changed');
+
+        $this->assertNotEquals($updatedResponseData['updated_at'], $updatedResponseData['created_at'], 'update and create times are different');
     }
 
     /**
