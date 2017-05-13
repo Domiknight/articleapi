@@ -1,0 +1,3 @@
+authors:
+    type: rest
+    resource: AppBundle\Controller\AuthorController

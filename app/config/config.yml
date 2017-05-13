@@ -84,7 +84,7 @@ fos_rest:
         view_response_listener: force
 
     # Disable CSRF protection
-    disable_csrf_role: ROLE_API
+    disable_csrf_role: IS_AUTHENTICATED_ANONYMOUSLY
 
 # app/config/config.yml
 nelmio_api_doc: ~
