@@ -74,53 +74,39 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
         $view = $this->view($article);
         $view
             ->setStatusCode(Response::HTTP_CREATED)
-            ->setLocation($this->generateUrl('show_articles', ['articleId' => $article->getId()]))
+            ->setLocation($this->generateUrl('show_articles', ['id' => $article->getId()]))
         ;
         return $this->handleView($view);
     }
 
     /**
-     * @Get("/api/articles/{articleId}")
+     * @Get("/api/articles/{id}")
      *
      * @ApiDoc(
      *     description = "Gets the details for a specific article"
      * )
      */
-    public function showAction($articleId)
+    public function showAction(Article $article)
     {
-        $article = $this->getDoctrine()->getRepository('AppBundle:Article')->find($articleId);
-        if (!$article)
-        {
-            throw new NotFoundHttpException();
-        }
-
         $view = $this->view($article);
         return $this->handleView($view);
     }
 
     /**
-     * @Put("/api/articles/{articleId}")
+     * @Put("/api/articles/{id}")
      *
      * @ApiDoc(
      *     description = "Displays a form to edit an existing article entity."
      * )
      */
-    public function editAction(Request $request, $articleId)
+    public function editAction(Request $request, Article $article)
     {
-        $article = $this->getDoctrine()->getRepository('AppBundle:Article')->find($articleId);
-        if (!$article)
-        {
-            throw new NotFoundHttpException();
-        }
-
-//        $deleteForm = $this->createDeleteForm($article);
         $form = $this->createForm(ArticleType::class, $article);
         $form->submit($request->request->all());
 
         if (!$form->isValid()) {
             return $form;
         }
-
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($article);
@@ -130,41 +116,22 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
     }
 
     /**
-     * @Delete("/api/articles/{id}")
+     * @Delete("/api/articles/{articleId}")
      *
      * @ApiDoc(
      *     description = "Deletes a article entity."
      * )
      */
-    public function deleteAction(Request $request, Article $article)
+    public function deleteAction($articleId)
     {
-        throw new ServiceUnavailableHttpException();
-
-        $form = $this->createDeleteForm($article);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
+        $article = $this->getDoctrine()->getRepository('AppBundle:Article')->find($articleId);
+        if ($article)
+        {
             $em = $this->getDoctrine()->getManager();
             $em->remove($article);
             $em->flush();
         }
 
-        return $this->redirectToRoute('api_articles_index');
-    }
-
-    /**
-     * Creates a form to delete a article entity.
-     *
-     * @param Article $article The article entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(Article $article)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('api_articles_delete', array('id' => $article->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
+        return $this->handleView($this->view(null, Response::HTTP_NO_CONTENT));
     }
 }

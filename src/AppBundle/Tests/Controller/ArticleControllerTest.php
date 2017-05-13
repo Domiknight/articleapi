@@ -10,7 +10,6 @@ class ArticleControllerTest extends WebTestCase
 {
     public function testCreate()
     {
-
         $client = static::createClient();
 
         $client->request(Request::METHOD_POST, '/api/authors', ['name' => 'me']);
@@ -45,6 +44,38 @@ class ArticleControllerTest extends WebTestCase
 
     /**
      * @depends testCreate
+     *
+     */
+    public function testShow()
+    {
+        $client = static::createClient();
+
+        $client->request(Request::METHOD_POST, '/api/authors', ['name' => 'me']);
+        $author = json_decode($client->getResponse()->getContent(), true);
+
+        $articleData = [
+            'title' => 'title',
+            'url' => 'url '.microtime(true),
+            'author' => $author['id'],
+            'content' => 'asdf asdf adsf asdfa sdfasdfasdfasdfasdfasdfds',
+        ];
+
+        $client->request(Request::METHOD_POST, '/api/articles', $articleData);
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $client->request(Request::METHOD_GET, $client->getResponse()->headers->get('Location'));
+        $getData = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'GET success');
+        $this->assertEquals($data, $getData, 'it\'s a match');
+
+        $client->request(Request::METHOD_GET, '/api/articles/asdf-2412');
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode(), 'GET correctly not found');
+    }
+
+    /**
+     * @depends testCreate
+     * @depends testShow
      */
     public function testUpdate()
     {
@@ -71,6 +102,8 @@ class ArticleControllerTest extends WebTestCase
         unset($updateData['created_at']);
         unset($updateData['updated_at']);
 
+        sleep(1);
+
         $client->request(Request::METHOD_PUT, '/api/articles/'.$data['id'], $updateData);
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), 'yay success');
 
@@ -84,83 +117,63 @@ class ArticleControllerTest extends WebTestCase
 
     /**
      * @depends testCreate
-     *
      */
-    public function testShow()
-    {
-        // get and check that details are the same
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+    public function testList() {
+
+        $client = static::createClient();
+
+        $client->request(Request::METHOD_GET, '/api/articles');
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode(), 'list success');
+        $currentList = json_decode($client->getResponse()->getContent(), true);
+
+        $client->request(Request::METHOD_POST, '/api/authors', ['name' => 'me']);
+        $author = json_decode($client->getResponse()->getContent(), true);
+
+        $articleData = [
+            'title' => 'title',
+            'url' => 'url '.microtime(true),
+            'author' => $author['id'],
+            'content' => 'asdf asdf adsf asdfa sdfasdfasdfasdfasdfasdfds',
+        ];
+
+        $client->request(Request::METHOD_POST, '/api/articles', $articleData);
+
+        $client->request(Request::METHOD_GET, '/api/articles');
+        $updatedList = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(count($currentList)+1, count($updatedList), 'List is returning everything');
     }
 
     /**
      * @depends testCreate
-     */
-    public function testList() {
-        // get list
-        // add one
-        // get list again - find exists - list size increases
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @depends testList
+     * @depends testShow
      */
     public function testDelete() {
-        // can't find resource
-        // one less in list
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
 
-    /*
-    public function testCompleteScenario()
-    {
-        // Create a new client to browse the application
         $client = static::createClient();
 
-        // Create a new entry in the database
-        $crawler = $client->request('GET', '/api/articles/');
-        $this->assertEquals(200, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code for GET /api/articles/");
-        $crawler = $client->click($crawler->selectLink('Create a new entry')->link());
+        $client->request(Request::METHOD_POST, '/api/authors', ['name' => 'me']);
+        $author = json_decode($client->getResponse()->getContent(), true);
 
-        // Fill in the form and submit it
-        $form = $crawler->selectButton('Create')->form(array(
-            'appbundle_article[field_name]'  => 'Test',
-            // ... other fields to fill
-        ));
+        $articleData = [
+            'title' => 'title',
+            'url' => 'url '.microtime(true),
+            'author' => $author['id'],
+            'content' => 'asdf asdf adsf asdfa sdfasdfasdfasdfasdfasdfds',
+        ];
 
-        $client->submit($form);
-        $crawler = $client->followRedirect();
+        $client->request(Request::METHOD_POST, '/api/articles', $articleData);
 
-        // Check data in the show view
-        $this->assertGreaterThan(0, $crawler->filter('td:contains("Test")')->count(), 'Missing element td:contains("Test")');
+        $data = json_decode($client->getResponse()->getContent(), true);
 
-        // Edit the entity
-        $crawler = $client->click($crawler->selectLink('Edit')->link());
+        $client->request(Request::METHOD_DELETE, '/api/articles/'.$data['id']);
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), 'delete success');
 
-        $form = $crawler->selectButton('Update')->form(array(
-            'appbundle_article[field_name]'  => 'Foo',
-            // ... other fields to fill
-        ));
+        $client->request(Request::METHOD_GET, '/api/articles/'.$data['id']);
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $client->getResponse()->getStatusCode(), 'article not found');
 
-        $client->submit($form);
-        $crawler = $client->followRedirect();
-
-        // Check the element contains an attribute with value equals "Foo"
-        $this->assertGreaterThan(0, $crawler->filter('[value="Foo"]')->count(), 'Missing element [value="Foo"]');
-
-        // Delete the entity
-        $client->submit($crawler->selectButton('Delete')->form());
-        $crawler = $client->followRedirect();
-
-        // Check the entity has been delete on the list
-        $this->assertNotRegExp('/Foo/', $client->getResponse()->getContent());
+        // still return a 204 if we delete something that doesn't exist
+        $client->request(Request::METHOD_DELETE, '/api/articles/'.$data['id']);
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), 'obfuscated delete success');
     }
-
-    */
 }
