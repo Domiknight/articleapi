@@ -20,6 +20,8 @@ class AuthorControllerTest extends WebTestCase
         $data = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertJson(json_encode(self::authorData), 'JSON match');
+        $this->assertArrayHasKey('id', $data, 'id key exists');
+        $this->assertEquals(self::authorData['name'], $data['name'], 'name matches');
         $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode(), 'yay success');
         $this->assertTrue(
             $client->getResponse()->headers->contains(
