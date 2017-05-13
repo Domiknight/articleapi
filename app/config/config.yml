@@ -86,5 +86,12 @@ fos_rest:
     # Disable CSRF protection
     disable_csrf_role: IS_AUTHENTICATED_ANONYMOUSLY
 
-# app/config/config.yml
 nelmio_api_doc: ~
+
+nelmio_cors:
+    paths:
+        '^/api/':
+            allow_origin: ['*']
+            allow_headers: ['*']
+            allow_methods: ['POST', 'PUT', 'GET', 'DELETE']
+            max_age: 0
