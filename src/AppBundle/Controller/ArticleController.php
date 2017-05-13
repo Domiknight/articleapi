@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\Article;
 use AppBundle\Form\ArticleType;
+use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -42,7 +43,12 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
 
         $articles = $em->getRepository('AppBundle:Article')->findAll();
 
+        $context = new Context();
+        $context->setGroups(['list']);
+
         $view = $this->view($articles);
+        $view->setContext($context);
+
         return $this->handleView($view);
     }
 
@@ -71,10 +77,14 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
         $em->persist($article);
         $em->flush();
 
+        $context = new Context();
+        $context->setGroups(['detail']);
+
         $view = $this->view($article);
         $view
             ->setStatusCode(Response::HTTP_CREATED)
             ->setLocation($this->generateUrl('show_articles', ['id' => $article->getId()]))
+            ->setContext($context)
         ;
         return $this->handleView($view);
     }
@@ -88,7 +98,11 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
      */
     public function showAction(Article $article)
     {
+        $context = new Context();
+        $context->setGroups(['detail']);
+
         $view = $this->view($article);
+        $view->setContext($context);
         return $this->handleView($view);
     }
 

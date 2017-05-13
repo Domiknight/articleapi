@@ -23,13 +23,19 @@ class ArticleControllerTest extends WebTestCase
         ];
 
         $client->request(Request::METHOD_POST, '/api/articles', $articleData);
+        $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode(), 'yay success');
 
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertJson(json_encode($articleData), 'JSON match');
         $this->assertArrayHasKey('id', $data, 'id key exists');
-        $this->assertArrayHasKey('created_at', $data, 'has createdAt field');
-        $this->assertArrayHasKey('updated_at', $data, 'has updatedAt field');
-        $this->assertEquals(Response::HTTP_CREATED, $client->getResponse()->getStatusCode(), 'yay success');
+        $this->assertArrayHasKey('createdAt', $data, 'has createdAt field');
+        $this->assertArrayHasKey('content', $data, 'has content field');
+        $this->assertArrayHasKey('url', $data, 'has url field');
+        $this->assertArrayHasKey('title', $data, 'has title field');
+        $this->assertArrayNotHasKey('summary', $data, 'does not have the summary field');
+        $this->assertArrayHasKey('author', $data, 'has author field');
+        $this->assertEquals('me', $data['author'], 'returned author is the name');
+
         $this->assertTrue(
             $client->getResponse()->headers->contains(
                 'Content-Type',
@@ -63,6 +69,15 @@ class ArticleControllerTest extends WebTestCase
         $client->request(Request::METHOD_POST, '/api/articles', $articleData);
         $data = json_decode($client->getResponse()->getContent(), true);
 
+        $this->assertArrayHasKey('id', $data, 'id key exists');
+        $this->assertArrayHasKey('createdAt', $data, 'has createdAt field');
+        $this->assertArrayHasKey('content', $data, 'has content field');
+        $this->assertArrayHasKey('url', $data, 'has url field');
+        $this->assertArrayHasKey('title', $data, 'has title field');
+        $this->assertArrayNotHasKey('summary', $data, 'does not have the summary field');
+        $this->assertArrayHasKey('author', $data, 'has author field');
+        $this->assertEquals('me', $data['author'], 'returned author is the name');
+
         $client->request(Request::METHOD_GET, $client->getResponse()->headers->get('Location'));
         $getData = json_decode($client->getResponse()->getContent(), true);
 
@@ -92,17 +107,13 @@ class ArticleControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_POST, '/api/articles', $articleData);
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals($data['updated_at'], $data['created_at'], 'update and create times are the same');
 
         // reformat for update request
         $updateData = $data;
         $updateData['title'] = 'title updated';
-        $updateData['author']= $data['author']['id'];
+        $updateData['author']= $author['id'];
         unset($updateData['id']);
-        unset($updateData['created_at']);
-        unset($updateData['updated_at']);
-
-        sleep(1);
+        unset($updateData['createdAt']);
 
         $client->request(Request::METHOD_PUT, '/api/articles/'.$data['id'], $updateData);
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), 'yay success');
@@ -110,9 +121,7 @@ class ArticleControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/api/articles/'.$data['id']);
         $updatedResponseData = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertEquals('title updated', $updatedResponseData['title'], 'title changed');
-
-        $this->assertNotEquals($updatedResponseData['updated_at'], $updatedResponseData['created_at'], 'update and create times are different');
+        $this->assertEquals('title updated', $updatedResponseData['title'], 'title changed successfully');
     }
 
     /**
@@ -140,8 +149,19 @@ class ArticleControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/api/articles');
         $updatedList = json_decode($client->getResponse()->getContent(), true);
-
         $this->assertEquals(count($currentList)+1, count($updatedList), 'List is returning everything');
+
+        $last = array_pop($updatedList);
+        $this->assertArrayHasKey('id', $last, 'id key exists');
+        $this->assertArrayHasKey('createdAt', $last, 'has createdAt field');
+        $this->assertArrayNotHasKey('content', $last, 'does not have the content field');
+        $this->assertArrayHasKey('url', $last, 'has url field');
+        $this->assertArrayHasKey('title', $last, 'has title field');
+        $this->assertArrayHasKey('summary', $last, 'has the summary field');
+        $this->assertArrayHasKey('author', $last, 'has author field');
+        $this->assertEquals('me', $last['author'], 'returned author is the name');
+
+
     }
 
     /**

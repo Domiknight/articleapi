@@ -5,6 +5,10 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\VirtualProperty;
 
 /**
  * Article
@@ -13,6 +17,24 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ArticleRepository")
  * @ORM\HasLifecycleCallbacks()
  * @UniqueEntity("url")
+ *
+ * @VirtualProperty(
+ *     "author",
+ *     exp="object.getAuthorName()",
+ *     options={@SerializedName("author"), @Groups({"detail", "list"})}
+ *  )
+ *
+ * @VirtualProperty(
+ *     "summary",
+ *     exp="object.getSummary()",
+ *     options={@SerializedName("summary"), @Groups({"list"})}
+ *  )
+ *
+ * @VirtualProperty(
+ *     "createdAt",
+ *     exp="object.getCreateDate()",
+ *     options={@SerializedName("createdAt"), @Groups({"detail", "list"})}
+ *  )
  */
 class Article
 {
@@ -22,6 +44,8 @@ class Article
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Groups({"detail", "list"})
      */
     private $id;
 
@@ -29,6 +53,8 @@ class Article
      * @var Author
      *
      * @ORM\ManyToOne(targetEntity="Author")
+     *
+     * @Exclude()
      */
     private $author;
 
@@ -36,6 +62,8 @@ class Article
      * @var string
      *
      * @ORM\Column(name="title", type="string", length=255)
+     *
+     * @Groups({"detail", "list"})
      */
     private $title;
 
@@ -43,6 +71,8 @@ class Article
      * @var string
      *
      * @ORM\Column(name="url", type="string", length=255, unique=true)
+     *
+     * @Groups({"detail", "list"})
      */
     private $url;
 
@@ -50,6 +80,8 @@ class Article
      * @var string
      *
      * @ORM\Column(name="content", type="text")
+     *
+     * @Groups({"detail"})
      */
     private $content;
 
@@ -57,6 +89,8 @@ class Article
      * @var \DateTime
      *
      * @ORM\Column(name="createdAt", type="datetime")
+     *
+     * @Exclude()
      */
     private $createdAt;
 
@@ -64,6 +98,8 @@ class Article
      * @var \DateTime
      *
      * @ORM\Column(name="updatedAt", type="datetime")
+     *
+     * @Exclude()
      */
     private $updatedAt;
 
@@ -237,5 +273,35 @@ class Article
     public function doPreUpdate()
     {
         $this->updatedAt = new \DateTime();
+    }
+
+    /**
+     * Returns the Author's name
+     *
+     * @return string
+     */
+    public function getAuthorName()
+    {
+        return $this->getAuthor()->getName();
+    }
+
+    /**
+     * Returns the first n chars of the content
+     *
+     * @return string
+     */
+    public function getSummary($size = 35)
+    {
+        return mb_substr($this->getContent(), 0, $size) . (mb_strlen($this->getContent()) > $size? '...': '');
+    }
+
+    /**
+     * Return the creation date without the time
+     *
+     * @return string
+     */
+    public function getCreateDate()
+    {
+        return $this->getCreatedAt()->format('Y-m-d');
     }
 }
