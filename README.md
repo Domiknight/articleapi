@@ -9,7 +9,7 @@ Download and install [Vagrant](https://www.vagrantup.com/downloads.html) then ru
 </pre>
 Available at
 <pre>
-<code>http://localhost:8080</code>
+<code>http://localhost:8080/api</code>
 </pre>
 
 ## Run Unit Tests
