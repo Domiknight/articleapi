@@ -51,7 +51,9 @@ class AuthorController extends FOSRestController implements ClassResourceInterfa
      * @Post("/api/authors")
      *
      * @ApiDoc(
-     *  description="Create a new Author",
+     *     description="Create a new Author",
+     *     input = "AppBundle\Form\AuthorType",
+     *     output = "AppBundle\Entity\Author"
      * )
      *
      * @param Request $request

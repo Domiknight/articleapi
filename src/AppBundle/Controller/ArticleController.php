@@ -34,7 +34,7 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
      * @Get("/api/articles")
      *
      * @ApiDoc(
-     *   description = "Lists all article entities."
+     *     description = "Lists all article entities."
      * )
      */
     public function indexAction()
@@ -54,7 +54,9 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
      * @Post("/api/articles")
      *
      * @ApiDoc(
-     *  description = "Creates a new article entity."
+     *     description = "Creates a new article entity.",
+     *     input = "AppBundle\Form\ArticleType",
+     *     output = {"class"="AppBundle\Entity\Article", "groups"={"detail"}}
      * )
      *
      * @param Request $request
@@ -87,7 +89,8 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
      * @Get("/api/articles/{id}")
      *
      * @ApiDoc(
-     *     description = "Gets the details for a specific article"
+     *     description = "Gets the details for a specific article",
+     *     output = {"class"="AppBundle\Entity\Article", "groups"={"detail"}}
      * )
      */
     public function showAction(Article $article)
@@ -104,7 +107,8 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
      * @Put("/api/articles/{id}")
      *
      * @ApiDoc(
-     *     description = "Displays a form to edit an existing article entity."
+     *     description = "Displays a form to edit an existing article entity.",
+     *     input = "AppBundle\Form\ArticleType"
      * )
      */
     public function editAction(Request $request, Article $article)
