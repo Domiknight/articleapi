@@ -87,11 +87,3 @@ fos_rest:
     disable_csrf_role: IS_AUTHENTICATED_ANONYMOUSLY
 
 nelmio_api_doc: ~
-
-nelmio_cors:
-    paths:
-        '^/api/':
-            allow_origin: ['*']
-            allow_headers: ['*']
-            allow_methods: ['POST', 'PUT', 'GET', 'DELETE']
-            max_age: 0
