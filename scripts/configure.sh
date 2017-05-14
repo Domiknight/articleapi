@@ -14,16 +14,16 @@ if ! [ -f /etc/php/5.6/apache2/php.ini.orig ]; then
 fi
 
 # Apache
-if ! [ -f /etc/apache2/sites-enabled/000-default.conf.orig ]; then
+if ! [ -f /etc/apache2/sites-available/000-default.conf.orig ]; then
     # Update the default security model to point to /vagrant share
     cp /etc/apache2/apache2.conf /etc/apache2/apache.conf.orig
     sed -e 's/Directory \/var\/www/Directory \/vagrant/' < /etc/apache2/apache2.conf > /etc/apache2/apache2.conf.new
     mv /etc/apache2/apache2.conf.new /etc/apache2/apache2.conf
 
     # Point the Document Root to the right place
-    cp /etc/apache2/sites-enabled/000-default.conf /etc/apache2/sites-enabled/000-default.conf.orig
-    sed -e 's/DocumentRoot \/var\/www\/html/DocumentRoot \/vagrant\/web/' < /etc/apache2/sites-enabled/000-default.conf > /etc/apache2/sites-enabled/000-default.conf.new
-    mv /etc/apache2/sites-enabled/000-default.conf.new /etc/apache2/sites-enabled/000-default.conf
+    cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf.orig
+    sed -e 's/DocumentRoot \/var\/www\/html/DocumentRoot \/vagrant\/web/' < /etc/apache2/sites-available/000-default.conf > /etc/apache2/sites-available/000-default.conf.new
+    mv /etc/apache2/sites-available/000-default.conf.new /etc/apache2/sites-available/000-default.conf
 
     # Make apache run as the vagrant user - solves perms issues with shared folders
     echo "Make apache run as vagrant user"

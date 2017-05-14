@@ -73,4 +73,5 @@ Vagrant.configure("2") do |config|
   # PROJECT PROVISIONING
   config.vm.provision :shell, path: "scripts/bootstrap.sh"
   config.vm.provision :shell, path: "scripts/configure.sh"
+  config.vm.provision :shell, path: "scripts/apiSetup.sh", privileged: false
 end
