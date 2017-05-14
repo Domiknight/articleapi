@@ -2,3 +2,7 @@ services:
     app.author.manager:
         class: AppBundle\Services\AuthorManager
         arguments: ['@doctrine']
+
+    app.article.manager:
+        class: AppBundle\Services\ArticleManager
+        arguments: ['@doctrine']

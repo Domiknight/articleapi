@@ -11,7 +11,6 @@ namespace AppBundle\Services;
 
 use AppBundle\Entity\Author;
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\ORM\EntityManager;
 
 
 class AuthorManager

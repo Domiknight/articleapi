@@ -39,9 +39,7 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
-
-        $articles = $em->getRepository('AppBundle:Article')->findAll();
+        $articles = $this->get('app.article.manager')->findAll();
 
         $context = new Context();
         $context->setGroups(['list']);
@@ -71,11 +69,7 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
             return $form;
         }
 
-        $article = $form->getData();
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($article);
-        $em->flush();
+        $article = $this->get('app.article.manager')->save($form->getData());
 
         $context = new Context();
         $context->setGroups(['detail']);
@@ -122,9 +116,7 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
             return $form;
         }
 
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($article);
-        $em->flush();
+        $this->get('app.article.manager')->save($article);
 
         return $this->handleView($this->view(null, Response::HTTP_NO_CONTENT));
     }
@@ -141,9 +133,7 @@ class ArticleController extends FOSRestController implements ClassResourceInterf
         $article = $this->getDoctrine()->getRepository('AppBundle:Article')->find($articleId);
         if ($article)
         {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($article);
-            $em->flush();
+            $this->get('app.article.manager')->delete($article);
         }
 
         return $this->handleView($this->view(null, Response::HTTP_NO_CONTENT));
