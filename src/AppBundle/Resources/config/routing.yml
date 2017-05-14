@@ -1,3 +1,7 @@
+default:
+    path: '/'
+    defaults: { _controller: AppBundle:Default:index }
+
 articles:
     type: rest
     resource: AppBundle\Controller\ArticleController
