@@ -37,7 +37,7 @@ class AuthorController extends FOSRestController implements ClassResourceInterfa
      */
     public function showAction($authorId)
     {
-        $author = $this->getDoctrine()->getRepository('AppBundle:Author')->find($authorId);
+        $author = $this->get('app.author.manager')->findOne($authorId);
         if (!$author)
         {
             throw new NotFoundHttpException();
@@ -66,11 +66,7 @@ class AuthorController extends FOSRestController implements ClassResourceInterfa
             return $form;
         }
 
-        $author = $form->getData();
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($author);
-        $em->flush();
+        $author = $this->get('app.author.manager')->save($form->getData());
 
         $view = $this->view($author);
         $view

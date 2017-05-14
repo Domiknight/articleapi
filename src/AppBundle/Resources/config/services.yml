@@ -1,0 +1,4 @@
+services:
+    app.author.manager:
+        class: AppBundle\Services\AuthorManager
+        arguments: ['@doctrine']
