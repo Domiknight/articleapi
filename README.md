@@ -10,7 +10,6 @@ Download and install [Vagrant](https://www.vagrantup.com/downloads.html) then ru
 Available at
 <pre>
 <code>http://localhost:8080</code>
-<code>http://localhost:8080/config.php</code>
 <code>http://localhost:8080/api</code>
 <code>http://localhost:8080/doc</code>
 </pre>
